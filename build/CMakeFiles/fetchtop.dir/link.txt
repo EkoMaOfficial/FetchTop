@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/fetchtop.dir/src/main.cpp.o CMakeFiles/fetchtop.dir/src/parsers.cpp.o -o fetchtop 
