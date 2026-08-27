@@ -6,6 +6,8 @@ namespace fetchtop {
     MemoryStatus parse_memory();
     
     CpuData parse_cpu();
+
+    std::vector<GpuData> parse_gpu();
     
     // ТОЛЬКО ОБЪЯВЛЕНИЕ! Никаких фигурных скобок.
     std::vector<ProcessInfo> parse_processes(); 

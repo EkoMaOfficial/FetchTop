@@ -11,6 +11,15 @@ namespace fetchtop {
     struct CpuData {
         std::uint64_t idle_time = 0;
         std::uint64_t total_time = 0;
+
+        std::uint64_t current_ghz = 0.0;
+        std::uint64_t max_ghz = 0.0;
+    };
+
+    struct GpuData {
+        std::string name;
+        int usage_percent = 0;
+        double current_mhz = 0.0;
     };
 
     struct ProcessInfo {
