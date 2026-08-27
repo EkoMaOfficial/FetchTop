@@ -4,15 +4,14 @@ cmake_minimum_required(VERSION 3.20)
 # 2. Имя твоего проекта и язык программирования
 project(FetchTop VERSION 1.0.0 LANGUAGES CXX)
 
-# 3. Жестко задаем стандарт C++. Мы используем современный C++20.
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# 4. Создаем исполняемый файл из нашей точки входа
+# 3. Создаем исполняемый файл из нашей точки входа
 add_executable(fetchtop 
     src/main.cpp
     src/parsers.cpp
 )
+
+# 4. Жестко задаем стандарт C++. Мы используем современный C++20.
+target_compile_features(fetchtop PRIVATE cxx_std_20)
 
 # 5. Указываем компилятору, где искать заголовочные файлы (.hpp)
 target_include_directories(fetchtop PRIVATE 
