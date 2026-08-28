@@ -9,7 +9,6 @@
 namespace fetchtop {
     namespace fs = std::filesystem;
 
-    // --- ПАРСЕР ПАМЯТИ ---
     MemoryStatus parse_memory() {
         MemoryStatus mem;
         std::ifstream file("/proc/meminfo"); 
@@ -31,7 +30,6 @@ namespace fetchtop {
         return mem;
     }
 
-    // --- ПАРСЕР ПРОЦЕССОРА ---
     CpuData parse_cpu() {
         CpuData cpu;
         std::ifstream file("/proc/stat");
@@ -48,18 +46,16 @@ namespace fetchtop {
                 cpu.idle_time = idle + iowait;
                 cpu.total_time = user + nice + system + idle + iowait + irq + softirq + steal;
             }
-        }
+        }    
 
-       // Чтение частоты CPU (Текущая) - с фолбэком!
         std::ifstream cur_freq_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
         if (cur_freq_file.is_open()) {
             std::uint64_t freq_khz = 0;
             if (cur_freq_file >> freq_khz) {
-                // Явно приводим к double, чтобы спастись от округления до нуля
                 cpu.current_ghz = static_cast<double>(freq_khz) / 1000000.0;
             }
         } else {
-            // ФОЛБЭК: Если файла нет, читаем из /proc/cpuinfo
+            // Fallback: if file not found, read from /proc/cpuinfo
             std::ifstream cpuinfo("/proc/cpuinfo");
             std::string line_info;
             while (std::getline(cpuinfo, line_info)) {
@@ -68,14 +64,13 @@ namespace fetchtop {
                     std::string k1, k2, colon;
                     double mhz = 0;
                     if (iss >> k1 >> k2 >> colon >> mhz) {
-                        cpu.current_ghz = mhz / 1000.0; // Тут уже мегагерцы, делим на 1000
+                        cpu.current_ghz = mhz / 1000.0;
                         break;
                     }
                 }
             }
         }
 
-        // Чтение частоты CPU (Максимальная)
         std::ifstream max_freq_file("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
         if (max_freq_file.is_open()) {
             std::uint64_t freq_khz = 0;
@@ -85,9 +80,8 @@ namespace fetchtop {
         }
 
         return cpu;
-    } // Конец функции parse_cpu()
+    }
 
-    // --- ПАРСЕР ВИДЕОКАРТЫ (GPU) ---
     std::vector<GpuData> parse_gpu() {
         std::vector<GpuData> gpus;
         if (!fs::exists("/sys/class/drm")) return gpus;
@@ -95,7 +89,7 @@ namespace fetchtop {
        for (const auto& entry : fs::directory_iterator("/sys/class/drm")) {
             std::string folder = entry.path().filename().string();
             
-            // НОВОЕ УСЛОВИЕ: берем только "card...", в которых НЕТ дефиса
+            // Get only "card" directories, that don't a hyphen
             if (folder.starts_with("card") && folder.find('-') == std::string::npos) {
                 GpuData gpu;
                 gpu.name = folder;
@@ -116,7 +110,6 @@ namespace fetchtop {
         return gpus;
     }
 
-    // --- ПАРСЕР ПРОЦЕССОВ ---
     std::vector<ProcessInfo> parse_processes() {
         std::vector<ProcessInfo> processes;
 
@@ -157,4 +150,4 @@ namespace fetchtop {
         return processes;
     }
 
-} // Конец namespace fetchtop
+}

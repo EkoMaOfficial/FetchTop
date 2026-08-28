@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <fetchtop/parsers.hpp>
 
-// Состояния приложения
 enum class AppState {
     Menu,
     DefaultView,
@@ -13,28 +12,34 @@ enum class AppState {
     Exit
 };
 
-// Функция отрисовки главного меню
 void render_menu() {
     std::cout << "\033[2J\033[H";
     std::cout << R"(
-  _____ ____ _____ ____ _   _ _____ ___  ____  
- |  ___| ____|_   _/ ___| | | |_   _/ _ \|  _ \ 
- | |_  |  _|   | || |   | |_| | | || | | | |_) |
- |  _| | |___  | || |___|  _  | | || |_| |  __/ 
- |_|   |_____| |_| \____|_| |_| |_| \___/|_|    
-    )" << "\n\n";
+                                                                      _nnnn_
+                                                                    dGGGGMMb
+     _____ _____ _____  ____ _   _ _____  ___  ____                @p~qp~~qMb
+    |  ___| ____|_   _|/ ___| | | |_   _|/ _ \|  _ \               M|@||@) M|
+    | |_  |  _|   | | | |   | |_| | | | | | | | |_) |              @,----.JM|
+    |  _| | |___  | | | |___|  _  | | | | |_| |  __/              JS^\__/  qKL
+    |_|   |_____| |_|  \____|_| |_| |_|  \___/|_|                dZP        qKRb
+                                                                dZP          qKKb
+         Made by esox <3                                       fZP            SMMb
+                                                               HZM            MMMM
+      1. Default View (General Info)                           FqM            MMMM
+      2. Advanced View (Per-Core & Extended Processes)       __| ".        |\dS"qML
+      3. Exit                                                |    `.       | `' \Zq
+                                                            _)      \.___.,|     .'
+                                                            \____   )MMMMMP|   .'
+                                                                 `-'       `--' 
 
-    std::cout << "1. Default View (General Info)\n";
-    std::cout << "2. Advanced View (Per-Core & Extended Processes)\n";
-    std::cout << "3. Exit\n\n";
+    )" << "\n\n";
+    
     std::cout << "Select option [1-3]: ";
 }
 
-// Рендеринг основного мониторинга (Default)
 void run_default_view() {
     std::cout << "\033[2J";
     
-    // Бесконечный цикл дашборда (выход по Ctrl+C)
     while (true) {
         fetchtop::CpuData cpu_old = fetchtop::parse_cpu();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -68,12 +73,10 @@ void run_default_view() {
     }
 }
 
-// Рендеринг расширенного мониторинга (Advanced)
 void run_advanced_view() {
     std::cout << "\033[2J";
     
     while (true) {
-        // 1. Сбор данных
         fetchtop::CpuData cpu_old = fetchtop::parse_cpu();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         fetchtop::CpuData cpu_new = fetchtop::parse_cpu();
@@ -81,17 +84,14 @@ void run_advanced_view() {
         fetchtop::MemoryStatus mem = fetchtop::parse_memory();
         std::vector<fetchtop::ProcessInfo> processes = fetchtop::parse_processes();
         
-        // ЗАПРАШИВАЕМ ДАННЫЕ GPU
         std::vector<fetchtop::GpuData> gpus = fetchtop::parse_gpu();
 
-        // 2. Отрисовка интерфейса
         std::cout << "\033[H";
         std::cout << "=== FetchTop: Advanced View ===\033[K\n\n";
 
-        std::cout << "RAM Usage: " << mem.available_kb / 1024 << " MB free out of " 
+        std::cout << "RAM Usage: " << mem.available_kb / 1024 << " MB free @ " 
                   << mem.total_kb / 1024 << " MB total\033[K\n";
 
-        // Математика CPU (только ОДИН раз!)
         std::uint64_t total_delta = cpu_new.total_time - cpu_old.total_time;
         std::uint64_t idle_delta = cpu_new.idle_time - cpu_old.idle_time;
         double cpu_usage = (total_delta > 0) ? 100.0 * (total_delta - idle_delta) / total_delta : 0.0;
@@ -100,7 +100,6 @@ void run_advanced_view() {
         std::cout << "Total CPU Load: " << cpu_usage << " % [" 
                   << cpu_new.current_ghz << " GHz @ " << cpu_new.max_ghz << " GHz]\033[K\n";
 
-        // Отрисовка GPU
         for (const auto& gpu : gpus) {
             std::cout << "GPU (" << gpu.name << "): " << gpu.usage_percent << " %";
             if (gpu.current_mhz > 0) {
@@ -113,7 +112,6 @@ void run_advanced_view() {
         std::cout << "--- TOP 25 PROCESSES BY RAM ---\033[K\n";
         std::cout << "  PID\t\tRAM (MB)\tNAME\033[K\n";
 
-        // Вывод процессов
         size_t count = std::min<size_t>(25, processes.size());
         for (size_t i = 0; i < count; ++i) {
             std::cout << "  " << processes[i].pid << "\t\t" 
@@ -136,7 +134,6 @@ int main() {
                     else if (choice == 2) state = AppState::AdvancedView;
                     else if (choice == 3) state = AppState::Exit;
                 } else {
-                    // Очистка при нечисловом вводе
                     std::cin.clear();
                     std::cin.ignore(10000, '\n');
                 }
