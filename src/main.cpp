@@ -96,7 +96,7 @@ void run_advanced_view() {
         std::uint64_t idle_delta = cpu_new.idle_time - cpu_old.idle_time;
         double cpu_usage = (total_delta > 0) ? 100.0 * (total_delta - idle_delta) / total_delta : 0.0;
 
-        std::cout << std::fixed << std::setprecision(1);
+        std::cout << std::fixed << std::setprecision(2);
         std::cout << "Total CPU Load: " << cpu_usage << " % [" 
                   << cpu_new.current_ghz << " GHz @ " << cpu_new.max_ghz << " GHz]\033[K\n";
 
